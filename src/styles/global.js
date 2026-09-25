@@ -904,19 +904,30 @@ html, body, #root, .tracer-root {
 .detail-panel .empty-state-rich { color: #7a7a7a; }
 .detail-panel .empty-state-rich .empty-state-icon { background: rgba(92,15,26,0.08); color: var(--color-primary); }
 
-/* Access-check summary row — used to fold the "Login & Authentication"
-   explainer into the merged Login & Verification panel without it
-   competing for space with the review queue below. */
+/* Access-check summary row — align with the reference mock: a large
+   explanatory block on the left and a tall numeric stat on the right. */
 .access-check-row {
-  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
-  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
-  padding: 12px 16px; margin-bottom: 20px;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 18px;
+  background: #f3f1f1; border: 1px solid #e7e2e1; border-radius: 18px;
+  padding: 18px 18px 16px; margin-bottom: 20px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
 }
-.access-check-item { display: flex; align-items: center; gap: 10px; font-size: 0.82rem; color: rgba(255,255,255,0.8); line-height: 1.45; max-width: 44ch; }
-.access-check-item svg { flex-shrink: 0; color: var(--gold); }
-.access-check-stat { text-align: right; flex-shrink: 0; }
-.access-check-stat b { display: block; font-family: var(--font-mono); font-size: 1.15rem; }
-.access-check-stat span { font-size: 0.68rem; color: rgba(255,255,255,0.55); white-space: nowrap; }
+.access-check-item {
+  display: flex; align-items: flex-start; gap: 12px; font-size: 0.96rem; color: #2e2a2a;
+  line-height: 1.55; max-width: 60ch;
+}
+.access-check-item svg { flex-shrink: 0; color: var(--color-primary); margin-top: 3px; }
+.access-check-stat {
+  display: flex; flex-direction: column; align-items: flex-end; justify-content: center;
+  min-width: 120px; text-align: right; flex-shrink: 0;
+}
+.access-check-stat b {
+  display: block; font-family: var(--font-mono); font-size: clamp(1.8rem, 3vw, 2.4rem);
+  line-height: 1; color: #1a1a1a; font-weight: 800;
+}
+.access-check-stat span {
+  display: block; margin-top: 6px; font-size: 0.7rem; line-height: 1.4; color: #5f5a5a; text-transform: lowercase;
+  white-space: normal; max-width: 110px;
+}
 .detail-panel .access-check-row { background: #faf7f6; border-color: #e6e1df; }
 .detail-panel .access-check-item { color: #4a4a4a; }
 .detail-panel .access-check-item svg { color: var(--color-primary); }
