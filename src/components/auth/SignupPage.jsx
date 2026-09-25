@@ -37,18 +37,7 @@ export default function SignupPage({ onSubmit, error, goLogin, goHome }) {
         <h2>Sign Up</h2>
 
         {error && (
-          <div
-            role="alert"
-            style={{
-              background: "rgba(92,15,26,0.08)",
-              color: "var(--maroon-bright)",
-              border: "1px solid rgba(92,15,26,0.25)",
-              borderRadius: 8,
-              padding: "5px 14px",
-              fontSize: "0.8rem",
-              marginBottom: 14,
-            }}
-          >
+          <div role="alert" className="error-banner">
             {error}
           </div>
         )}

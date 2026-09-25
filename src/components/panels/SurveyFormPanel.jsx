@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Icon from "../ui/Icon";
 import { EMPLOYMENT_OPTIONS } from "../../lib/constants";
 
@@ -8,8 +8,18 @@ export default function SurveyFormPanel({ me, onSubmit, surveyHistory = [], subm
   const [companyName, setCompanyName] = useState(me.companyName || "");
   const [businessName, setBusinessName] = useState(me.businessName || "");
   const [years, setYears] = useState(me.years || "");
-  const [skillsText, setSkillsText] = useState(me.skills.join(", "));
-  const [done, setDone] = useState(me.surveyCompleted);
+  const [skillsText, setSkillsText] = useState((me.skills || []).join(", "));
+  const [done, setDone] = useState(Boolean(me.surveyCompleted));
+
+  useEffect(() => {
+    setEmployed(EMPLOYMENT_OPTIONS.includes(me.employed) ? me.employed : "Unemployed");
+    setJobTitle(me.jobTitle || "");
+    setCompanyName(me.companyName || "");
+    setBusinessName(me.businessName || "");
+    setYears(me.years || "");
+    setSkillsText((me.skills || []).join(", "));
+    setDone(Boolean(me.surveyCompleted));
+  }, [me]);
 
   function submit(e) {
     e.preventDefault();

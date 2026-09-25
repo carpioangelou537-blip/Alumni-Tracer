@@ -2,8 +2,7 @@ import Icon from "../ui/Icon";
 import EmptyState from "../ui/EmptyState";
 import SkillRecommendations from "./SkillRecommendations";
 
-export default function CareerToolsPanel({ me, jobs, onApply, jobApplications }) {
-  const applied = new Set((jobApplications || []).map((a) => a.jobId));
+export default function CareerToolsPanel({ me, jobs }) {
   const scored = jobs
     .map((j) => ({ ...j, overlap: j.skills.filter((s) => me.skills.some((ms) => ms.toLowerCase() === s.toLowerCase())) }))
     .sort((a, b) => b.overlap.length - a.overlap.length);
@@ -22,25 +21,28 @@ export default function CareerToolsPanel({ me, jobs, onApply, jobApplications })
                   <span className={`chip ${j.overlap.includes(s) ? "match" : ""}`} key={s}>{s}</span>
                 ))}
               </div>
-              {j.link && (
-                <a href={j.link} target="_blank" rel="noopener noreferrer" className="notif-goto" style={{ marginTop: 8, display: "inline-flex" }}>
-                  <Icon name="arrow" size={12} /> Visit posting
-                </a>
-              )}
             </div>
             {j.overlap.length > 0 && <span className="pill ok">{j.overlap.length} skill match{j.overlap.length === 1 ? "" : "es"}</span>}
-            {onApply &&
-              (applied.has(j.id) ? (
-                <span className="pill muted">Applied</span>
-              ) : (
-                <button
-                  className="btn-primary"
-                  style={{ whiteSpace: "nowrap", padding: "8px 14px" }}
-                  onClick={() => onApply(j.id)}
-                >
-                  <Icon name="arrow" size={12} /> Apply
-                </button>
-              ))}
+            {j.link ? (
+              <a
+                href={j.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary"
+                style={{ whiteSpace: "nowrap", padding: "8px 14px", background: "linear-gradient(135deg, #8b1e3f, #5c0f1a)", color: "#fff", boxShadow: "0 10px 20px -10px rgba(92, 15, 26, 0.7)" }}
+              >
+                <Icon name="arrow" size={12} /> Visit Posting
+              </a>
+            ) : (
+              <button
+                className="btn-primary"
+                style={{ whiteSpace: "nowrap", padding: "8px 14px", opacity: 0.82, cursor: "not-allowed", background: "linear-gradient(135deg, #8b1e3f, #5c0f1a)", color: "#fff", boxShadow: "0 10px 20px -10px rgba(92, 15, 26, 0.7)" }}
+                type="button"
+                disabled
+              >
+                <Icon name="arrow" size={12} /> Visit Posting
+              </button>
+            )}
           </div>
         ))}
       </div>
