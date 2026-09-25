@@ -448,10 +448,10 @@ export async function insertNotification(rec) {
   return data;
 }
 
-export async function upsertSurveyResponse(rec) {
+export async function insertSurveyResponse(rec) {
   const { data, error } = await supabase
     .from(TABLES.surveyResponses)
-    .upsert(surveyToRow(rec), { onConflict: "user_id" })
+    .insert(surveyToRow(rec))
     .select()
     .single();
   if (error) throw error;

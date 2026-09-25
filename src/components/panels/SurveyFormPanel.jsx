@@ -2,7 +2,7 @@ import { useState } from "react";
 import Icon from "../ui/Icon";
 import { EMPLOYMENT_OPTIONS } from "../../lib/constants";
 
-export default function SurveyFormPanel({ me, onSubmit, submitLabel = "Submit survey" }) {
+export default function SurveyFormPanel({ me, onSubmit, surveyHistory = [], submitLabel = "Submit survey" }) {
   const [employed, setEmployed] = useState(EMPLOYMENT_OPTIONS.includes(me.employed) ? me.employed : "Unemployed");
   const [jobTitle, setJobTitle] = useState(me.jobTitle || "");
   const [companyName, setCompanyName] = useState(me.companyName || "");
@@ -67,6 +67,34 @@ export default function SurveyFormPanel({ me, onSubmit, submitLabel = "Submit su
         <button type="submit" className="btn-primary btn-block" style={{ maxWidth: 240 }}>{submitLabel}</button>
         {done && <span className="confirm-badge"><Icon name="check" size={13} /> Survey on file — this feeds AAO's analytics</span>}
       </form>
+
+      <div className="overview-block-title" style={{ marginTop: 24 }}>My survey history</div>
+      {surveyHistory.length === 0 ? (
+        <p style={{ fontSize: "0.82rem", color: "#6b6b6b", marginTop: 4 }}>
+          Your previous survey submissions will appear here.
+        </p>
+      ) : (
+        <div className="list-block" style={{ marginTop: 8 }}>
+          {surveyHistory.map((response, index) => (
+            <div className="list-item" key={response.id}>
+              <div className="list-item-main">
+                <div className="list-item-title">
+                  {index === 0 ? "Latest response" : `Previous response ${index}`}
+                </div>
+                <div className="list-item-sub">
+                  {response.submittedAt ? new Date(response.submittedAt).toLocaleDateString() : "Date unavailable"} · {response.employed}
+                  {response.jobTitle ? ` · ${response.jobTitle}` : ""}
+                  {response.companyName ? ` at ${response.companyName}` : ""}
+                  {response.businessName ? ` · ${response.businessName}` : ""}
+                </div>
+              </div>
+              <div className="chip-row">
+                {response.skills.map((skill) => <span className="chip" key={`${response.id}-${skill}`}>{skill}</span>)}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

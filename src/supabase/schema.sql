@@ -88,7 +88,8 @@ create table if not exists public.notifications (
 );
 
 -- --------------------------- survey_responses --------------------------
--- Latest employment survey per alumnus (one row per user, upserted).
+-- Append-only employment survey history. The alumni table stores the latest
+-- snapshot used for matching; this table preserves every submitted survey.
 create table if not exists public.survey_responses (
   id            uuid primary key default gen_random_uuid(),
   user_id       text not null,
@@ -102,7 +103,7 @@ create table if not exists public.survey_responses (
   updated_at    timestamptz default timezone('utc', now())
 );
 
-create unique index if not exists survey_responses_user_id_key on public.survey_responses (user_id);
+drop index if exists survey_responses_user_id_key;
 
 -- ------------------------- alumni_skills_history -----------------------
 -- Timestamped snapshot of an alumnus's skills every time they submit

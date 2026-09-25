@@ -46,11 +46,19 @@ function DonutTooltip({ active, payload }) {
   );
 }
 
-export default function AnalyticsPanel({ alumni, jobs }) {
-  const employedCount = alumni.filter((a) => isEmployedStatus(a.employed)).length;
-  const selfEmployedCount = alumni.filter((a) => a.employed === "Self Employed").length;
-  const unemployedCount = alumni.filter((a) => a.employed === "Unemployed").length;
-  const unknownCount = alumni.filter((a) => !isEmployedStatus(a.employed) && a.employed !== "Unemployed").length;
+export default function AnalyticsPanel({ alumni, jobs, surveyResponses = [] }) {
+  const latestByUser = new Map();
+  surveyResponses.forEach((response) => {
+    if (response.userId && !latestByUser.has(response.userId)) latestByUser.set(response.userId, response);
+  });
+  const currentAlumni = alumni.map((alumnus) => {
+    const latest = latestByUser.get(alumnus.userId);
+    return latest ? { ...alumnus, ...latest, skills: latest.skills } : alumnus;
+  });
+  const employedCount = currentAlumni.filter((a) => isEmployedStatus(a.employed)).length;
+  const selfEmployedCount = currentAlumni.filter((a) => a.employed === "Self Employed").length;
+  const unemployedCount = currentAlumni.filter((a) => a.employed === "Unemployed").length;
+  const unknownCount = currentAlumni.filter((a) => !isEmployedStatus(a.employed) && a.employed !== "Unemployed").length;
 
   const employmentData = [
     { name: "Employed", value: employedCount - selfEmployedCount },
@@ -60,21 +68,29 @@ export default function AnalyticsPanel({ alumni, jobs }) {
   ].filter((d) => d.value > 0);
 
   const freq = {};
-  alumni.forEach((a) => a.skills.forEach((s) => { freq[s] = (freq[s] || 0) + 1; }));
+  currentAlumni.forEach((a) => a.skills.forEach((skill) => {
+    const key = String(skill).trim().toLowerCase();
+    if (!key) return;
+    if (!freq[key]) freq[key] = { label: String(skill).trim(), count: 0 };
+    freq[key].count += 1;
+  }));
   const demand = {};
-  jobs.forEach((j) => j.skills.forEach((s) => { demand[s] = (demand[s] || 0) + 1; }));
-  const skillList = Object.keys(freq).sort((a, b) => freq[b] - freq[a]).slice(0, 6);
-  const maxFreq = Math.max(1, ...skillList.map((s) => freq[s]));
+  jobs.forEach((job) => job.skills.forEach((skill) => {
+    const key = String(skill).trim().toLowerCase();
+    if (key) demand[key] = (demand[key] || 0) + 1;
+  }));
+  const skillList = Object.keys(freq).sort((a, b) => freq[b].count - freq[a].count).slice(0, 6);
+  const maxFreq = Math.max(1, ...skillList.map((skill) => freq[skill].count));
 
   const skillsData = skillList.map((s) => ({
-    skill: s,
-    alumni: freq[s],
+    skill: freq[s].label,
+    alumni: freq[s].count,
     demand: demand[s] || 0,
-    pct: Math.round((freq[s] / maxFreq) * 100),
+    pct: Math.round((freq[s].count / maxFreq) * 100),
   }));
 
   const total = alumni.length;
-  const completed = alumni.filter((a) => a.surveyCompleted).length;
+  const completed = currentAlumni.filter((a) => a.surveyCompleted || latestByUser.has(a.userId)).length;
   const completionPct = total ? Math.round((completed / total) * 100) : 0;
 
   return (

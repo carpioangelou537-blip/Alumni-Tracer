@@ -26,9 +26,7 @@ export const ADMIN_FEATURES = [
   { icon: "bell", title: "Manage Notifications", text: "Send announcements, reminders, and alerts to alumni to keep engagement and response rates high." },
   { icon: "spark", title: "View AI Analytics", text: "See AI-generated career-tracking analytics showing which skills and coursework shape alumni outcomes, informing curriculum decisions." },
   { icon: "brief", title: "Career Tools & Job Postings", text: "Maintain job recommendations and postings shared by partner schools, published for alumni through the Career Tools module." },
-  { icon: "brief", title: "Job Applications", text: "Review which alumni have applied for partner openings and which postings are drawing the most response." },
   { icon: "calendar", title: "Manage Event Posting", text: "Set up and announce alumni events, then track attendee responses through the Events Response System." },
-  { icon: "clock", title: "Admin Activity Logs", text: "A timestamped trail of every verification and moderation action taken by the admin team." },
 ];
 
 export function getAlumniFeatures() {

@@ -2,7 +2,7 @@ import { useState } from "react";
 import AuthShell from "../layout/AuthShell";
 import Icon from "../ui/Icon";
 
-export default function LoginPage({ role, setRole, onSubmit, error, goSignup, goHome }) {
+export default function LoginPage({ onSubmit, error, goSignup, goHome }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -21,21 +21,6 @@ export default function LoginPage({ role, setRole, onSubmit, error, goSignup, go
   return (
     <AuthShell onBack={goHome}>
       <div className="auth-card">
-        <div className="role-toggle" role="tablist" aria-label="Account type">
-          {["alumni", "admin"].map((r) => (
-            <button
-              key={r}
-              type="button"
-              role="tab"
-              aria-selected={role === r}
-              className={`role-tab ${role === r ? "active" : ""}`}
-              onClick={() => setRole(r)}
-            >
-              {r === "alumni" ? "Alumnus" : "Administrator"}
-            </button>
-          ))}
-        </div>
-
         <h2>Login</h2>
 
         {error && (

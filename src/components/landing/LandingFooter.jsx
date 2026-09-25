@@ -10,7 +10,7 @@ export default function LandingFooter({ onLogin, onGetStarted }) {
             <div className="lp-footer-brand">
               <div className="crest small"><BrandLogo /></div>
               <div>
-                <div style={{ color: "var(--white)", fontFamily: "var(--font-display)", fontWeight: 700 }}>Alumni Tracer</div>
+                <div style={{ color: "var(--black)", fontFamily: "var(--font-display)", fontWeight: 700 }}>Alumni Tracer</div>
                 <div style={{ fontSize: "0.7rem" }}>St. Peter's College — Iligan City</div>
               </div>
             </div>

@@ -237,11 +237,13 @@ export default function App() {
       setAuthError("Passwords do not match.");
       return;
     }
-    const metadata = { firstName: form.firstName, lastName: form.lastName, role };
-    if (role === "alumni") {
-      metadata.program = form.program;
-      metadata.gradYear = form.gradYear;
-    }
+    const metadata = {
+      firstName: form.firstName,
+      lastName: form.lastName,
+      role: "alumni",
+      program: form.program,
+      gradYear: form.gradYear,
+    };
     const res = await api.signUp(form.email, form.password, metadata);
     if (res.error) {
       setAuthError(res.error.message);
@@ -304,9 +306,9 @@ export default function App() {
           submittedAt: now,
           updatedAt: now,
         };
-        setSurveyResponses((list) => [surveyRow, ...list.filter((s) => s.userId !== me.userId)]);
+        setSurveyResponses((list) => [surveyRow, ...list]);
         api
-          .upsertSurveyResponse(surveyRow)
+          .insertSurveyResponse(surveyRow)
           .then((row) => setSurveyResponses((list) => list.map((s) => (s.id === surveyRow.id ? { ...s, id: row.id } : s))))
           .catch(() => {});
         api
@@ -496,8 +498,6 @@ export default function App() {
   } else if (page === "signup") {
     body = (
       <SignupPage
-        role={role}
-        setRole={setRole}
         onSubmit={handleSignup}
         error={authError}
         goLogin={() => setPage("login")}
@@ -520,8 +520,6 @@ export default function App() {
   } else if (page === "login") {
     body = (
       <LoginPage
-        role={role}
-        setRole={setRole}
         onSubmit={handleLogin}
         error={authError}
         goSignup={() => setPage("signup")}

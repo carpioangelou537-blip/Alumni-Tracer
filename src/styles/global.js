@@ -522,11 +522,11 @@ html, body, #root, .tracer-root {
 /* Stats */
 .stats-section-inner {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px;
-  background: var(--black); border-radius: 22px; padding: clamp(32px, 6vw, 52px); color: var(--white);
+  background: var(--white); border-radius: 22px; padding: clamp(32px, 6vw, 52px); color: var(--black);
 }
 .stat-lp { text-align: center; }
-.stat-lp b { display: block; font-family: var(--font-mono); font-size: clamp(1.8rem, 4vw, 2.5rem); color: var(--gold); }
-.stat-lp span { font-size: 0.8rem; color: rgba(255,255,255,0.6); }
+.stat-lp b { display: block; font-family: var(--font-mono); font-size: clamp(1.8rem, 4vw, 2.5rem); color: var(--black); }
+.stat-lp span { font-size: 0.8rem; color: rgba(11,10,10,0.65); }
 
 /* CTA banner */
 .cta-banner {
@@ -538,16 +538,16 @@ html, body, #root, .tracer-root {
 .cta-banner p { color: rgba(255,255,255,0.75); max-width: 48ch; font-size: 0.94rem; }
 
 /* Footer */
-.lp-footer { background: var(--black); color: rgba(255,255,255,0.7); }
+.lp-footer { background: var(--white); color: rgba(11,10,10,0.7); }
 .lp-footer-inner { max-width: 1180px; margin: 0 auto; padding: 44px clamp(16px, 5vw, 32px) 26px; }
 .lp-footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 30px; margin-bottom: 30px; }
 .lp-footer-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .lp-footer p { font-size: 0.84rem; line-height: 1.6; max-width: 40ch; }
-.lp-footer h5 { color: var(--white); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+.lp-footer h5 { color: var(--black); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
 .lp-footer ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-.lp-footer ul button { background: none; border: none; color: rgba(255,255,255,0.65); font-size: 0.84rem; cursor: pointer; text-align: left; padding: 0; transition: color 0.2s var(--ease); }
+.lp-footer ul button { background: none; border: none; color: rgba(11,10,10,0.65); font-size: 0.84rem; cursor: pointer; text-align: left; padding: 0; transition: color 0.2s var(--ease); }
 .lp-footer ul button:hover { color: var(--gold); }
-.lp-footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 18px; font-size: 0.76rem; color: rgba(255,255,255,0.45); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.lp-footer-bottom { border-top: 1px solid rgba(11,10,10,0.1); padding-top: 18px; font-size: 0.76rem; color: rgba(11,10,10,0.55); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
 
 @media (max-width: 860px) {
   .hero-inner { grid-template-columns: 1fr; }

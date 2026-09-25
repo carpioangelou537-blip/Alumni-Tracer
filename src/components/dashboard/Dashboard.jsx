@@ -1,243 +1,108 @@
-import { useEffect, useState } from "react";
-import { ADMIN_FEATURES, getAlumniFeatures } from "../../lib/constants";
+import { useState } from "react";
+import AuthShell from "../layout/AuthShell";
 import Icon from "../ui/Icon";
-import AnimatedNumber from "../ui/AnimatedNumber";
-import DashboardSidebar from "./DashboardSidebar";
-import DashboardHeader from "./DashboardHeader";
-import { AdminDashboardOverview, AlumniDashboardOverview } from "./DashboardOverviews";
-import LoginAndVerificationPanel from "../panels/LoginAndVerificationPanel";
-import ManageUsersPanel from "../panels/ManageUsersPanel";
-import AlumniInfoPanel from "../panels/AlumniInfoPanel";
-import SurveyResultsPanel from "../panels/SurveyResultsPanel";
-import NotifyComposerPanel from "../panels/NotifyComposerPanel";
-import AnalyticsPanel from "../panels/AnalyticsPanel";
-import JobsAdminPanel from "../panels/JobsAdminPanel";
-import EventsAdminPanel from "../panels/EventsAdminPanel";
-import JobApplicationsAdminPanel from "../panels/JobApplicationsAdminPanel";
-import AdminActivityLogsPanel from "../panels/AdminActivityLogsPanel";
-import SurveyFormPanel from "../panels/SurveyFormPanel";
-import JobAlignmentPanel from "../panels/JobAlignmentPanel";
-import CareerToolsPanel from "../panels/CareerToolsPanel";
-import EventsAlumniPanel from "../panels/EventsAlumniPanel";
-import ProfileModal from "../modals/ProfileModal";
-import SurveyModal from "../modals/SurveyModal";
+import { PROGRAM_OPTIONS, YEAR_OPTIONS } from "../../lib/constants";
 
-export default function Dashboard({ role, name, me, domain, onLogout }) {
-  const {
-    alumni,
-    jobs,
-    events,
-    notifications,
-    surveyResponses,
-    skillsHistory,
-    courseRecommendations,
-    jobApplications,
-    adminActivityLogs,
-    actions,
-  } = domain;
-  const safeMe = me || {
-    id: null,
-    userId: null,
-    name: name || (role === "admin" ? "Administrator" : "Alumnus"),
-    program: "",
-    gradYear: "",
-    employed: "Unknown",
-    jobTitle: "",
-    companyName: "",
-    businessName: "",
-    years: "",
-    skills: [],
-    surveyCompleted: false,
-    avatar: null,
-    verificationStatus: role === "admin" ? "verified" : "pending",
-    isSelf: false,
-  };
-  const features = role === "admin" ? ADMIN_FEATURES : getAlumniFeatures();
+export default function SignupPage({ onSubmit, error, goLogin, goHome }) {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [program, setProgram] = useState(PROGRAM_OPTIONS[0]);
+  const [gradYear, setGradYear] = useState(YEAR_OPTIONS[0]);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  const [active, setActive] = useState(features[0].title);
-  const [entered, setEntered] = useState(false);
-  const [notifOpen, setNotifOpen] = useState(false);
-  const [profileModalOpen, setProfileModalOpen] = useState(false);
-  const [surveyModalOpen, setSurveyModalOpen] = useState(false);
-  const [surveyDismissed, setSurveyDismissed] = useState(false);
-
-  useEffect(() => {
-    const t = setTimeout(() => setEntered(true), 60);
-    return () => clearTimeout(t);
-  }, []);
-
-  /* the alumni survey comes only AFTER an admin verifies the account —
-     verification first, then the modal opens for the survey */
-  useEffect(() => {
-    if (role === "alumni" && me && me.verificationStatus === "verified" && !me.surveyCompleted && !surveyDismissed) {
-      setSurveyModalOpen(true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [role, me, surveyDismissed]);
-
-  function handleSurveySubmit(data) {
-    if (!safeMe) return;
-    actions.submitSurvey(data);
-    setActive(data.employed === "Unemployed" ? "Career Tools" : "Job Alignment");
-  }
-
-  function handleModalSubmit(data) {
-    handleSurveySubmit(data);
-    setSurveyModalOpen(false);
-    setSurveyDismissed(true);
-  }
-
-  function goToFeature(title) {
-    setActive(title);
-  }
-
-  const surveyedCount = alumni.filter((a) => a.surveyCompleted).length;
-  const pendingVerifications = alumni.filter((a) => a.verificationStatus === "pending").length;
-  const verifiedCount = alumni.filter((a) => a.verificationStatus === "verified").length;
-  const totalRsvps = events.reduce((sum, e) => sum + e.rsvps.length, 0);
-  const matchedJobs = jobs.filter((j) =>
-    j.skills.some((s) => safeMe.skills.some((ms) => String(ms).toLowerCase() === String(s).toLowerCase()))
-  ).length;
-
-  const STATS = {
-    admin: [
-      { label: "Total alumni", value: String(alumni.length), icon: "users" },
-      { label: "Pending verifications", value: String(pendingVerifications), icon: "shield" },
-      { label: "Verified alumni", value: String(verifiedCount), icon: "check" },
-      { label: "Job applications", value: String(jobApplications.length), icon: "brief" },
-    ],
-    alumni: [
-      { label: "Profile completeness", value: `${Math.min(100, 30 + safeMe.skills.length * 15 + (safeMe.surveyCompleted ? 25 : 0))}%`, icon: "id" },
-      { label: "Matched openings", value: String(matchedJobs), icon: "brief" },
-      { label: "Upcoming events", value: String(events.length), icon: "calendar" },
-      { label: "Survey status", value: safeMe.surveyCompleted ? "Done" : "Pending", icon: "doc" },
-    ],
-  };
-
-  function getBadge(title) {
-    if (role === "admin") {
-      if (title === "Login & Verification") return pendingVerifications;
-      if (title === "Manage User Accounts") return alumni.length;
-      if (title === "View Alumni Information") return alumni.length;
-      if (title === "View Survey Results") return surveyedCount;
-      if (title === "Manage Notifications") return notifications.length;
-      if (title === "Career Tools & Job Postings") return jobs.length;
-      if (title === "Job Applications") return jobApplications.length;
-      if (title === "Admin Activity Logs") return adminActivityLogs.length;
-      if (title === "Manage Event Posting") return totalRsvps;
-    } else {
-      if (title === "Job Alignment" || title === "Career Tools") return matchedJobs;
-      if (title === "Events & Activities") return events.length;
-      if (title === "Complete the Alumni Survey") return safeMe.surveyCompleted ? "Done" : "Pending";
-    }
-    return null;
-  }
-
-  const myRecommendations = courseRecommendations.filter((r) => r.userId && r.userId === safeMe.userId);
-  const myApplications = jobApplications.filter((a) => a.userId && a.userId === safeMe.userId);
-
-  function renderPanel(title) {
-    if (role === "admin") {
-      switch (title) {
-        case "Dashboard":
-          return <AdminDashboardOverview alumni={alumni} jobs={jobs} events={events} notifications={notifications} onNavigate={goToFeature} />;
-        case "Login & Verification":
-          return <LoginAndVerificationPanel alumni={alumni} onApprove={actions.approveAlumni} onReject={actions.rejectAlumni} />;
-        case "Manage User Accounts":
-          return <ManageUsersPanel alumni={alumni} onAdd={actions.addAlumni} onRemove={actions.removeAlumni} />;
-        case "View Alumni Information":
-          return <AlumniInfoPanel alumni={alumni} skillsHistory={skillsHistory} />;
-        case "View Survey Results":
-          return <SurveyResultsPanel alumni={alumni} surveyResponses={surveyResponses} />;
-        case "Manage Notifications":
-          return <NotifyComposerPanel notifications={notifications} onSend={actions.sendNotification} />;
-        case "View AI Analytics":
-          return <AnalyticsPanel alumni={alumni} jobs={jobs} />;
-        case "Career Tools & Job Postings":
-          return <JobsAdminPanel jobs={jobs} onAdd={actions.addJob} onRemove={actions.removeJob} />;
-        case "Job Applications":
-          return <JobApplicationsAdminPanel jobApplications={jobApplications} jobs={jobs} alumni={alumni} />;
-        case "Admin Activity Logs":
-          return <AdminActivityLogsPanel adminActivityLogs={adminActivityLogs} alumni={alumni} />;
-        case "Manage Event Posting":
-          return <EventsAdminPanel events={events} onAdd={actions.addEvent} onRemove={actions.removeEvent} />;
-        default:
-          return null;
-      }
-    }
-    switch (title) {
-      case "Dashboard":
-        return <AlumniDashboardOverview me={safeMe} jobs={jobs} events={events} notifications={notifications} onNavigate={goToFeature} />;
-      case "Complete the Alumni Survey":
-        return <SurveyFormPanel me={safeMe} onSubmit={handleSurveySubmit} />;
-      case "Job Alignment":
-        return <JobAlignmentPanel me={safeMe} jobs={jobs} recommendations={myRecommendations} />;
-      case "Career Tools":
-        return <CareerToolsPanel me={safeMe} jobs={jobs} onApply={actions.applyJob} jobApplications={myApplications} />;
-      case "Events & Activities":
-        return <EventsAlumniPanel events={events} me={safeMe} onRsvp={actions.rsvpEvent} />;
-      default:
-        return null;
+  async function submit(e) {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      await onSubmit({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        program,
+        gradYear,
+        email: email.trim(),
+        password,
+        confirmPassword,
+      });
+    } finally {
+      setBusy(false);
     }
   }
-
-  const activeFeature = features.find((f) => f.title === active);
 
   return (
-    <div className={`dash ${entered ? "in" : ""}`}>
-      {surveyModalOpen && role === "alumni" && me && me.verificationStatus === "verified" && !me.surveyCompleted && (
-        <SurveyModal me={safeMe} onSubmit={handleModalSubmit} onClose={() => { setSurveyModalOpen(false); setSurveyDismissed(true); }} />
-      )}
-      {profileModalOpen && role === "alumni" && (
-        <ProfileModal me={safeMe} onSave={actions.updateSelf} onClose={() => setProfileModalOpen(false)} />
-      )}
+    <AuthShell onBack={goHome}>
+      <div className="auth-card">
+        <h2>Sign Up</h2>
 
-      <DashboardSidebar
-        role={role}
-        me={safeMe}
-        features={features}
-        active={active}
-        onSelect={goToFeature}
-        getBadge={getBadge}
-        onLogout={onLogout}
-      />
-
-      <main className="dash-main">
-        <DashboardHeader
-          role={role}
-          name={name}
-          me={safeMe}
-          notifications={notifications}
-          notifOpen={notifOpen}
-          onToggleNotif={() => setNotifOpen((o) => !o)}
-          onGoto={goToFeature}
-          onCloseNotif={() => setNotifOpen(false)}
-          onOpenProfile={() => setProfileModalOpen(true)}
-        />
-
-        <section className="stat-grid">
-          {STATS[role].map((s, i) => (
-            <div className="stat-card" style={{ "--i": i }} key={s.label}>
-              <div className="stat-card-icon"><Icon name={s.icon} size={16} /></div>
-              <div className="stat-card-body">
-                <p className="stat-value"><AnimatedNumber value={s.value} start /></p>
-                <p className="stat-label">{s.label}</p>
-              </div>
-            </div>
-          ))}
-        </section>
-
-        {activeFeature && (
-          <section className="detail-panel" key={activeFeature.title}>
-            <div className="detail-icon"><Icon name={activeFeature.icon} size={24} /></div>
-            <div className="detail-body">
-              <h3>{activeFeature.title}</h3>
-              <p>{activeFeature.text}</p>
-              {renderPanel(activeFeature.title)}
-            </div>
-          </section>
+        {error && (
+          <div
+            role="alert"
+            style={{
+              background: "rgba(92,15,26,0.08)",
+              color: "var(--maroon-bright)",
+              border: "1px solid rgba(92,15,26,0.25)",
+              borderRadius: 8,
+              padding: "5px 14px",
+              fontSize: "0.8rem",
+              marginBottom: 14,
+            }}
+          >
+            {error}
+          </div>
         )}
-      </main>
-    </div>
+
+        <form onSubmit={submit} className="auth-form">
+          <div className="field-pair">
+            <label className="field">
+              <span>First name</span>
+              <input value={firstName} onChange={(e) => setFirstName(e.target.value)} type="text" placeholder="Juan" autoComplete="given-name" required />
+            </label>
+            <label className="field">
+              <span>Last name</span>
+              <input value={lastName} onChange={(e) => setLastName(e.target.value)} type="text" placeholder="Dela Cruz" autoComplete="family-name" required />
+            </label>
+          </div>
+
+          <div className="field-pair">
+            <label className="field">
+              <span>Program</span>
+              <select value={program} onChange={(e) => setProgram(e.target.value)} required>
+                {PROGRAM_OPTIONS.map((p) => <option key={p} value={p}>{p}</option>)}
+              </select>
+            </label>
+            <label className="field">
+              <span>Year graduated</span>
+              <select value={gradYear} onChange={(e) => setGradYear(e.target.value)} required>
+                {YEAR_OPTIONS.map((y) => <option key={y} value={y}>{y}</option>)}
+              </select>
+            </label>
+          </div>
+
+          <label className="field"><span>Email address</span><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@spc.edu.ph" autoComplete="email" required /></label>
+
+          <div className="field-pair">
+            <label className="field"><span>Password</span><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" autoComplete="new-password" required /></label>
+            <label className="field"><span>Confirm password</span><input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Repeat password" autoComplete="new-password" required /></label>
+          </div>
+
+          <label className="checkbox">
+            <input type="checkbox" required />
+            <span>I agree to the data privacy terms of the Alumni Affairs Office</span>
+          </label>
+
+          <p style={{ fontSize: "0.76rem", color: "#6b6b6b", lineHeight: 1.5, margin: 0 }}>
+            An administrator will need to verify your account before you can access the Alumni Survey and other restricted features.
+          </p>
+
+          <button type="submit" className="btn-primary btn-block" disabled={busy}>
+            {busy ? "Creating account…" : (<><span>Create account</span> <Icon name="arrow" size={16} /></>)}
+          </button>
+        </form>
+
+        <p className="switch-line">Already registered? <button className="text-link" onClick={goLogin}>Sign in</button></p>
+      </div>
+    </AuthShell>
   );
 }
